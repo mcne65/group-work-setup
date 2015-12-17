@@ -49,9 +49,9 @@ def cli():
                 required=True)
 @click.option('-u', '--user', help='Your Github user', required=True)
 @click.option('-p', '--password', default=PASSWORD)
-# @click.option('-p', '--password', prompt=True,
-#               hide_input=True, help='Your Github password',
-#               default=PASSWORD, required=True)
+@click.option('-p', '--password', prompt=True,
+              hide_input=True, help='Your Github password',
+              default=PASSWORD, required=True)
 def clone_group_repos_for_class(team_configuration, user, password):
     """
     Creates repositories for teams based on a given set of assignments
@@ -59,27 +59,12 @@ def clone_group_repos_for_class(team_configuration, user, password):
     It's necessary to pass a team_configuration json file to describe
     the teams that compose a given class and the reposiories to create from.
     Check team_configuration_tpl.json for an example.
-
     """
     conf = Configuration.read_from_file(team_configuration)
 
     teams_created = create_teams_and_repos_for_assignments(
         user=user, password=password, configuration=conf)
-    # import ipdb; ipdb.set_trace()
     report(teams_created)
-
-
-@cli.command()
-@click.option('-u', '--user', help='Your Github user', required=True)
-@click.option('-p', '--password', default=PASSWORD)
-def test_gh(user, password):
-    from github3 import login
-    from group_work_setup import github
-    gh = login(user, password=password)
-    user = gh.user()
-    org = github.get_organization('rmotr', user)
-    repo = github.create_repo_in_organization(org, 'test-repo')
-    # import ipdb; ipdb.set_trace()
 
 
 if __name__ == '__main__':

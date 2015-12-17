@@ -1,0 +1,21 @@
+{
+    "organization": "rmotr",
+    "course": "pyp",
+    "class": 2,
+    "batch": 4,
+    "group": 2,
+
+    "assignments": [
+        {"organization": "rmotr", "name": "1", "repo": "rmotr/pyp-c2-a1"}
+    ],
+    "teams": [
+        {
+            "name": "t2",
+            "participants": ["vihu", "andreshazard", "bjames301"]
+        },
+        {
+            "name": "t3",
+            "participants": ["LiYChristopher", "Schwartz210"]
+        }
+    ]
+}

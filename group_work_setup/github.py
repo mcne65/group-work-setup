@@ -4,6 +4,13 @@ from github3 import login
 from . import utils
 
 
+def search_team(organization, team_name):
+    for team in organization.iter_teams():
+        if team.name == team_name:
+            return organization.team(team.id)
+    return None
+
+
 def get_organization(org_login, user):
     iter = itertools.dropwhile(
         lambda org: org.login != org_login, user.iter_orgs())
@@ -36,15 +43,21 @@ def create_repos_for_team_name(organization, configuration, team_name):
     return repos
 
 
-def create_team_for_repos(organization, configuration, team_name,
+def create_team_for_repos(organization, full_team_name,
                           repo_names, permission='push'):
-    team_name = utils.generate_team_name(
-        batch=configuration.batch, course=configuration.course,
-        group=configuration.group, team_name=team_name)
     team = organization.create_team(
-        team_name, repo_names=repo_names, permission=permission)
+        full_team_name, repo_names=repo_names, permission=permission)
 
     return team
+
+
+def get_or_create_team_for_repos(organization, full_team_name,
+                                 repo_names, permission='push'):
+    return (
+        search_team(organization, full_team_name) or
+        create_team_for_repos(organization,
+                              full_team_name, repo_names, permission)
+    )
 
 
 def get_repo_names_from_repos(repos):
@@ -52,11 +65,17 @@ def get_repo_names_from_repos(repos):
 
 
 def create_team_and_repos(organization, configuration, team):
-    repos = create_repos_for_team_name(organization, configuration, team.name)
+    full_team_name = utils.generate_team_name(
+        batch=configuration.batch, course=configuration.course,
+        group=configuration.group, team_name=team.name)
+    repos = create_repos_for_team_name(
+        organization, configuration, team.name)
     repo_names = get_repo_names_from_repos(repos)
-    github_team = create_team_for_repos(
-        organization, configuration, team.name, repo_names)
+    github_team = get_or_create_team_for_repos(
+        organization, full_team_name, repo_names)
+
     [github_team.invite(p) for p in team.participants_names]
+    [github_team.add_repo(r) for r in repos]
 
     return github_team, repos
 
